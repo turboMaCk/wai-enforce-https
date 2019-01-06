@@ -11,7 +11,8 @@ import           Test.Hspec
 
 app :: EnforceHTTPSConfig -> Application
 app conf = enforceHTTPS conf $
-  \_ respond -> respond $ responseLBS status200 [] "OK"
+  -- reference to: https://en.wikipedia.org/wiki/Zork
+  \_ respond -> respond $ responseLBS status200 [] "Hello, sailor"
 
 
 run :: EnforceHTTPSConfig -> Session a -> IO a
@@ -42,3 +43,8 @@ spec = do
       res <- request $ baseReq { requestMethod = "POST" }
       assertStatus 405 res
       assertNoHeader "Location" res
+
+    it "should not redirect secure request" $ withApp $ do
+      res <- request $ baseReq { isSecure = True }
+      assertStatus 200 res
+      assertBody "Hello, sailor" res
