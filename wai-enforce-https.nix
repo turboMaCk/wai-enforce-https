@@ -1,5 +1,5 @@
 { mkDerivation, base, bytestring, hspec, http-types, network
-, stdenv, text, wai, libiconv
+, stdenv, text, wai, wai-extra, libiconv
 }:
 mkDerivation {
   pname = "wai-enforce-https";
@@ -9,7 +9,9 @@ mkDerivation {
     base bytestring http-types network text wai
   ];
   executableSystemDepends = [ libiconv ];
-  testHaskellDepends = [ base hspec ];
+  testHaskellDepends = [
+    base hspec wai wai-extra http-types
+  ];
   homepage = "https://github.com/turboMaCk/wai-enforce-https";
   description = "Enforce https requests for wai. With reverse proxy support.";
   license = stdenv.lib.licenses.bsd3;

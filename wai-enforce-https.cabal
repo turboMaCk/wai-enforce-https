@@ -34,7 +34,10 @@ test-suite spec
     main-is:           Spec.hs
     other-modules:     EnforceHTTPSSpec
     build-depends:     base
-                     , wai-enforce-https
                      , hspec
+                     , wai-enforce-https
+                     , wai
+                     , wai-extra
+                     , http-types
     ghc-options:       -Wall
     default-language:  Haskell2010

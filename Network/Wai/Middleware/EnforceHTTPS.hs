@@ -66,28 +66,34 @@ enforceHTTPS conf app req =
 
 redirect :: EnforceHTTPSConfig -> Application
 redirect EnforceHTTPSConfig { .. } req respond = respond $
-    Wai.responseBuilder status (catMaybes [ redirectURL ]) mempty
+  case Wai.requestHeaderHost req of
+    Just h  -> Wai.responseBuilder status (headers h) mempty
+    -- A Host header field must be sent in all HTTP/1.1 request messages.
+    -- A 400 (Bad Request) status code will be sent to any HTTP/1.1 request message
+    -- that lacks a Host header field or contains more than one.
+    -- source: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host
+    Nothing -> Wai.responseBuilder HTTP.status400 [] mempty
 
   where
     method = Wai.requestMethod req
 
-    status =
+    (status, headers) =
       if method `elem` redirectMethods then
-        if temporary then
+        ( if temporary then
             HTTP.status302
-        else
+          else
             HTTP.status301
+        , pure . redirectURL
+        )
 
       else if method `elem` internalRedirectMethods then
-        HTTP.status307
+        ( HTTP.status307, pure . redirectURL )
 
       else
-        disallowStatus
+        ( disallowStatus, const [] )
 
-    redirectURL =
-      (\h ->
-         ( HTTP.hLocation , "https://" <> h <> path )
-      ) <$> host
+    redirectURL h =
+      ( HTTP.hLocation, "https://" <> fullHost h <> path)
 
     path =
       if ignoreURL then
@@ -95,9 +101,7 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
       else
         Wai.rawPathInfo req <> Wai.rawQueryString req
 
-    host =
-        (\h -> h <> port') <$>
-        maybe hostname Just (Wai.requestHeaderHost req)
+    fullHost h = h <> port'
 
     port' =
       if port == 443 && skipDefaultPort then
