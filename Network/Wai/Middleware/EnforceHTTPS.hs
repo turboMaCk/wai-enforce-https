@@ -3,13 +3,13 @@
 {-# LANGUAGE RecordWildCards   #-}
 
 module Network.Wai.Middleware.EnforceHTTPS
-  ( EnforceHTTPSConfig
+  ( EnforceHTTPSConfig(..)
   , defaultConfig
   , enforceHTTPS
   ) where
 
 import           Data.ByteString     (ByteString)
-import           Data.Maybe          (catMaybes)
+import           Data.Maybe          (fromMaybe)
 import           Data.Monoid         ((<>))
 import           Network.HTTP.Types  (Method, Status)
 import           Network.Wai         (Application, Middleware, Request)
@@ -30,35 +30,33 @@ type HTTPSResolver =
 
 
 data EnforceHTTPSConfig = EnforceHTTPSConfig
-    { isSecure                :: HTTPSResolver
-    , hostname                :: Maybe ByteString
-    , port                    :: Int
-    , ignoreURL               :: Bool
-    , temporary               :: Bool
-    , skipDefaultPort         :: Bool
-    , redirectMethods         :: [ Method ]
-    , internalRedirectMethods :: [ Method ]
-    , disallowStatus          :: Status
+    { httpsIsSecure        :: HTTPSResolver
+    , httpsHostname        :: Maybe ByteString
+    , httpsPort            :: Int
+    , httpsIgnoreURL       :: Bool
+    , httpsTemporary       :: Bool
+    , httpsSkipDefaultPort :: Bool
+    , httpsRedirectMethods :: [ Method ]
+    , httpsDisallowStatus  :: Status
     }
 
 
 defaultConfig :: EnforceHTTPSConfig
 defaultConfig = EnforceHTTPSConfig
-  { isSecure = Wai.isSecure
-  , hostname = Nothing
-  , port = 443
-  , ignoreURL = False
-  , temporary = False
-  , skipDefaultPort = True
-  , redirectMethods = [ "GET", "HEAD" ]
-  , internalRedirectMethods = []
-  , disallowStatus = HTTP.methodNotAllowed405
+  { httpsIsSecure = Wai.isSecure
+  , httpsHostname = Nothing
+  , httpsPort = 443
+  , httpsIgnoreURL = False
+  , httpsTemporary = False
+  , httpsSkipDefaultPort = True
+  , httpsRedirectMethods = [ "GET", "HEAD" ]
+  , httpsDisallowStatus = HTTP.methodNotAllowed405
   }
 
 
 enforceHTTPS :: EnforceHTTPSConfig -> Middleware
-enforceHTTPS conf app req =
-  if Wai.isSecure req then
+enforceHTTPS conf@EnforceHTTPSConfig { .. } app req =
+  if httpsIsSecure req then
     app req
   else
     redirect conf req
@@ -75,35 +73,32 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
     Just h  -> Wai.responseBuilder status (headers h) mempty
 
   where
-    (status, headers) =
-      if reqMethod `elem` redirectMethods then
-        ( if temporary then
+    ( status, headers ) =
+      if reqMethod `elem` httpsRedirectMethods then
+        ( if httpsTemporary then
             HTTP.status302
           else
             HTTP.status301
         , pure . redirectURL
         )
 
-      else if reqMethod `elem` internalRedirectMethods then
-        ( HTTP.status307, pure . redirectURL )
-
       else
-        ( disallowStatus, const [] )
+        ( httpsDisallowStatus, const [] )
 
     redirectURL h =
       ( HTTP.hLocation, "https://" <> fullHost h <> path)
 
     path =
-      if ignoreURL then
+      if httpsIgnoreURL then
         mempty
       else
         Wai.rawPathInfo req <> Wai.rawQueryString req
 
-    port' =
-      if port == 443 && skipDefaultPort then
+    port =
+      if httpsPort == 443 && httpsSkipDefaultPort then
         ""
       else
-        TE.encodeUtf8 $ T.pack $ show port
+        TE.encodeUtf8 $ (mappend ":") $ T.pack $ show httpsPort
 
-    fullHost h = h <> port'
+    fullHost h = fromMaybe h httpsHostname <> port
     reqMethod = Wai.requestMethod req
