@@ -18,6 +18,7 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Network.Wai.Middleware.EnforceHTTPS
+                     , Network.HTTP.Forwarded
   -- other-modules:
   -- other-extensions:
   build-depends:       base
@@ -26,6 +27,7 @@ library
                      , http-types
                      , bytestring
                      , text
+                     , case-insensitive
   default-language:    Haskell2010
 
 test-suite spec
@@ -33,11 +35,14 @@ test-suite spec
     hs-source-dirs:    test
     main-is:           Spec.hs
     other-modules:     EnforceHTTPSSpec
+                     , ForwardedSpec
     build-depends:     base
                      , hspec
                      , wai-enforce-https
                      , wai
                      , wai-extra
                      , http-types
+                     , bytestring
+                     , case-insensitive
     ghc-options:       -Wall
     default-language:  Haskell2010

@@ -1,12 +1,12 @@
 { mkDerivation, base, bytestring, hspec, http-types, network
-, stdenv, text, wai, wai-extra, libiconv
+, stdenv, text, wai, wai-extra, libiconv, case-insensitive
 }:
 mkDerivation {
   pname = "wai-enforce-https";
   version = "0.0.1";
   src = ./.;
   libraryHaskellDepends = [
-    base bytestring http-types network text wai
+    base bytestring http-types network text wai case-insensitive
   ];
   executableSystemDepends = [ libiconv ];
   testHaskellDepends = [
