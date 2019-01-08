@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP               #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
@@ -6,6 +5,10 @@ module Network.Wai.Middleware.EnforceHTTPS
   ( EnforceHTTPSConfig(..)
   , defaultConfig
   , withConfiguration
+  , xForwardedProto
+  , azure
+  , customProtoHeader
+  , forwarded
   ) where
 
 import           Data.ByteString      (ByteString)
@@ -20,11 +23,6 @@ import qualified Network.HTTP.Types   as HTTP
 import qualified Network.Wai          as Wai
 import qualified Data.CaseInsensitive as CaseInsensitive
 import qualified Network.HTTP.Forwarded as Forwarded
-
-#if __GLASGOW_HASKELL__ < 710
-import           Control.Applicative  ((<$>))
-import           Data.Monoid          (mempty)
-#endif
 
 
 type HTTPSResolver =

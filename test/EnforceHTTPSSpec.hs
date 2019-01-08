@@ -34,6 +34,7 @@ spec = do
   describe "`skipDefaultPort` setting" skipDefaultPortSpec
   describe "`httsRedirectMethods` setting" redirectMethodsSpec
   describe "`httpsDisallowStatus` settings" disallowStatusSpec
+  describe "resolvers" resolversSpec
 
 
 defaultSettingsSpec :: Spec
@@ -143,9 +144,79 @@ redirectMethodsSpec = do
 
 
 disallowStatusSpec :: Spec
-disallowStatusSpec = do
+disallowStatusSpec =
   let withApp = run $ defaultConfig { httpsDisallowStatus = status403 }
-
+  in
   it "returns specified status for disallowed method" $ withApp $ do
     res <- request $ baseReq { requestMethod = "POST" }
     assertStatus 403 res
+
+
+resolversSpec :: Spec
+resolversSpec = do
+  describe "x-forwarded-proto resolver" $ do
+    let withApp = run $ defaultConfig { httpsIsSecure = xForwardedProto }
+
+    it "retuns 301 redirect on GET without header" $ withApp $ do
+      res <- request $ baseReq
+      assertStatus 301 res
+      assertHeader "Location" "https://haskell.org" res
+
+    it "retuns 301 redirect on GET if header value is http" $ withApp $ do
+      res <- request $ baseReq { requestHeaders = [("x-forwarded-proto", "http")]}
+      assertStatus 301 res
+      assertHeader "Location" "https://haskell.org" res
+
+    it "returns 200 if header value is https" $ withApp $ do
+      res <- request $ baseReq { requestHeaders = [("x-forwarded-proto", "https")]}
+      assertStatus 200 res
+      assertNoHeader "Location" res
+
+  describe "azure's x-arr-ssl header" $ do
+    let withApp = run $ defaultConfig { httpsIsSecure = azure }
+
+    it "retuns 301 redirect on GET without header" $ withApp $ do
+      res <- request $ baseReq
+      assertStatus 301 res
+      assertHeader "Location" "https://haskell.org" res
+
+    it "returns 200 if header is present" $ withApp $ do
+      res <- request $ baseReq { requestHeaders = [("x-arr-ssl", "")]}
+      assertStatus 200 res
+      assertNoHeader "Location" res
+
+  describe "custom proto header resolver" $ do
+    let withApp = run $ defaultConfig { httpsIsSecure = customProtoHeader("x-proto") }
+
+    it "retuns 301 redirect on GET without header" $ withApp $ do
+      res <- request $ baseReq
+      assertStatus 301 res
+      assertHeader "Location" "https://haskell.org" res
+
+    it "retuns 301 redirect on GET if header value is http" $ withApp $ do
+      res <- request $ baseReq { requestHeaders = [("x-proto", "http")]}
+      assertStatus 301 res
+      assertHeader "Location" "https://haskell.org" res
+
+    it "returns 200 if header value is https" $ withApp $ do
+      res <- request $ baseReq { requestHeaders = [("x-proto", "https")]}
+      assertStatus 200 res
+      assertNoHeader "Location" res
+
+  describe "forwarded header" $ do
+    let withApp = run $ defaultConfig { httpsIsSecure = forwarded }
+
+    it "retuns 301 redirect on GET without header" $ withApp $ do
+      res <- request $ baseReq
+      assertStatus 301 res
+      assertHeader "Location" "https://haskell.org" res
+
+    it "retuns 301 redirect on GET if header value is http" $ withApp $ do
+      res <- request $ baseReq { requestHeaders = [("forwarded", "proto=http")]}
+      assertStatus 301 res
+      assertHeader "Location" "https://haskell.org" res
+
+    it "returns 200 if header value is https" $ withApp $ do
+      res <- request $ baseReq { requestHeaders = [("forwarded", "proto=https")]}
+      assertStatus 200 res
+      assertNoHeader "Location" res
