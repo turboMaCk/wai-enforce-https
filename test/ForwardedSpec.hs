@@ -4,7 +4,7 @@ module ForwardedSpec where
 import           Data.ByteString        (ByteString)
 import           Test.Hspec
 
-import qualified Data.CaseInsensitive as CI
+import qualified Data.CaseInsensitive   as CI
 import qualified Network.HTTP.Forwarded as F
 
 
@@ -33,6 +33,14 @@ spec = do
 
       it "should encode" $ do
         F.encodeForwarded parsed `shouldBe` val
+
+      it "parses even without spaces" $ do
+        let p = F.parseForwarded "by=foo;for=bar;host=haskell.org;proto=https"
+        F.forwardedBy p `valIs` "foo"
+        F.forwardedFor p `valIs` "bar"
+        F.forwardedHost p `valIs` "haskell.org"
+        F.forwardedProto p `valIsInsensitive` "https"
+
 
     context "only proto part" $ do
       let val = "proto=http"

@@ -59,6 +59,7 @@ defaultSettingsSpec = do
   it "should not redirect secure request" $ withApp $ do
     res <- request $ baseReq { isSecure = True }
     assertStatus 200 res
+    assertNoHeader "Location" res
     assertBody "Hello, sailor" res
 
   it "includes url path and params to redirect" $ withApp $ do
@@ -171,6 +172,7 @@ resolversSpec = do
       res <- request $ baseReq { requestHeaders = [("x-forwarded-proto", "https")]}
       assertStatus 200 res
       assertNoHeader "Location" res
+      assertBody "Hello, sailor" res
 
   describe "azure's x-arr-ssl header" $ do
     let withApp = run $ defaultConfig { httpsIsSecure = azure }
@@ -184,6 +186,7 @@ resolversSpec = do
       res <- request $ baseReq { requestHeaders = [("x-arr-ssl", "")]}
       assertStatus 200 res
       assertNoHeader "Location" res
+      assertBody "Hello, sailor" res
 
   describe "custom proto header resolver" $ do
     let withApp = run $ defaultConfig { httpsIsSecure = customProtoHeader("x-proto") }
@@ -202,6 +205,7 @@ resolversSpec = do
       res <- request $ baseReq { requestHeaders = [("x-proto", "https")]}
       assertStatus 200 res
       assertNoHeader "Location" res
+      assertBody "Hello, sailor" res
 
   describe "forwarded header" $ do
     let withApp = run $ defaultConfig { httpsIsSecure = forwarded }
@@ -220,3 +224,4 @@ resolversSpec = do
       res <- request $ baseReq { requestHeaders = [("forwarded", "proto=https")]}
       assertStatus 200 res
       assertNoHeader "Location" res
+      assertBody "Hello, sailor" res
