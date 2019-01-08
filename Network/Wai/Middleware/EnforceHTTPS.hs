@@ -8,20 +8,22 @@ module Network.Wai.Middleware.EnforceHTTPS
   , withConfiguration
   ) where
 
-import           Data.ByteString     (ByteString)
-import           Data.Maybe          (fromMaybe)
-import           Data.Monoid         ((<>))
-import           Network.HTTP.Types  (Method, Status)
-import           Network.Wai         (Application, Middleware, Request)
+import           Data.ByteString      (ByteString)
+import           Data.Maybe           (fromMaybe)
+import           Data.Monoid          ((<>))
+import           Network.HTTP.Types   (Method, Status)
+import           Network.Wai          (Application, Middleware, Request)
 
-import qualified Data.Text           as T
-import qualified Data.Text.Encoding  as TE
-import qualified Network.HTTP.Types  as HTTP
-import qualified Network.Wai         as Wai
+import qualified Data.Text            as T
+import qualified Data.Text.Encoding   as TE
+import qualified Network.HTTP.Types   as HTTP
+import qualified Network.Wai          as Wai
+import qualified Data.CaseInsensitive as CaseInsensitive
+import qualified Network.HTTP.Forwarded as Forwarded
 
 #if __GLASGOW_HASKELL__ < 710
-import           Control.Applicative ((<$>))
-import           Data.Monoid         (mempty)
+import           Control.Applicative  ((<$>))
+import           Data.Monoid          (mempty)
 #endif
 
 
@@ -100,3 +102,47 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
 
     fullHost h = fromMaybe h httpsHostname <> port
     reqMethod = Wai.requestMethod req
+
+
+default' :: Middleware
+default' =
+  withConfiguration defaultConfig
+
+
+-- RESOLVERS
+
+
+xForwardedProto :: HTTPSResolver
+xForwardedProto req =
+  maybe False (== "https") maybeHederVal
+  where
+    maybeHederVal =
+      "x-forwarded-proto" `lookup` Wai.requestHeaders req
+
+
+azure :: HTTPSResolver
+azure req =
+  maybe False (const True) maybeHeader
+  where
+    maybeHeader =
+      "x-arr-ssl" `lookup` Wai.requestHeaders req
+
+
+customProtoHeader :: ByteString -> HTTPSResolver
+customProtoHeader header req =
+  maybe False (== "https") maybeHederVal
+  where
+    maybeHederVal =
+      CaseInsensitive.mk header `lookup` Wai.requestHeaders req
+
+
+forwarded :: HTTPSResolver
+forwarded req =
+  maybe False check maybeHeader
+  where
+    check val =
+      maybe False (== "https") $
+      Forwarded.forwardedProto $ Forwarded.parseForwarded val
+
+    maybeHeader =
+      "forwarded" `lookup` Wai.requestHeaders req

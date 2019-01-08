@@ -13,11 +13,11 @@ import qualified Data.CaseInsensitive as CaseInsensitive
 
 
 data Forwarded = Forwarded
-  { forwardedBy    :: Maybe ByteString
-  , forwardedFor   :: Maybe ByteString
-  , forwardedHost  :: Maybe ByteString
+  { forwardedBy     :: Maybe ByteString
+  , forwardedFor    :: Maybe ByteString
+  , forwardedHost   :: Maybe ByteString
   ,  forwardedProto :: Maybe (CI ByteString)
-  } deriving(Eq)
+  } deriving (Eq)
 
 
 instance Show Forwarded where
