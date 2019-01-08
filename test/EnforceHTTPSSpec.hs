@@ -10,7 +10,7 @@ import           Test.Hspec
 
 
 app :: EnforceHTTPSConfig -> Application
-app conf = enforceHTTPS conf $
+app conf = withConfiguration conf $
   -- reference to: https://en.wikipedia.org/wiki/Zork
   \_ respond -> respond $ responseLBS status200 [] "Hello, sailor"
 
@@ -26,98 +26,126 @@ baseReq =
 
 spec :: Spec
 spec = do
-  describe "Default settings" $ do
-    let withApp = run defaultConfig
-
-    it "retuns 301 redirect on GET" $ withApp $ do
-      res <- request $ baseReq
-      assertStatus 301 res
-      assertHeader "Location" "https://haskell.org" res
-
-    it "retuns 301 redirect on HEAD" $ withApp $ do
-      res <- request $ baseReq { requestMethod = "HEAD" }
-      assertStatus 301 res
-      assertHeader "Location" "https://haskell.org" res
-
-    it "retuns 405 disallow on POST" $ withApp $ do
-      res <- request $ baseReq { requestMethod = "POST" }
-      assertStatus 405 res
-      assertNoHeader "Location" res
-
-    it "should not redirect secure request" $ withApp $ do
-      res <- request $ baseReq { isSecure = True }
-      assertStatus 200 res
-      assertBody "Hello, sailor" res
-
-    it "includes url path and params to redirect" $ withApp $ do
-      res <- request $ baseReq { rawPathInfo = "/foo", rawQueryString = "?bar=baz" }
-      assertStatus 301 res
-      assertHeader "Location" "https://haskell.org/foo?bar=baz" res
+  describe "Default settings" defaultSettingsSpec
+  describe "`httpsHostname` setting" hostnameSpec
+  describe "`httpsPort` setting" portSpec
+  describe "`httpsIgnoreURL` setting" ignoreURLSpec
+  describe "`httpsTemporary` setting" temporarySpec
+  describe "`skipDefaultPort` setting" skipDefaultPortSpec
+  describe "`httsRedirectMethods` setting" redirectMethodsSpec
+  describe "`httpsDisallowStatus` settings" disallowStatusSpec
 
 
-  describe "`httpsHostname` setting" $ do
-    let withApp = run $ defaultConfig { httpsHostname = Just "foo.com" }
+defaultSettingsSpec :: Spec
+defaultSettingsSpec = do
+  let withApp = run defaultConfig
 
-    it "redirects to specified hostname" $ withApp $ do
-      res <- request baseReq
-      assertStatus 301 res
-      assertHeader "Location" "https://foo.com" res
+  it "retuns 301 redirect on GET" $ withApp $ do
+    res <- request $ baseReq
+    assertStatus 301 res
+    assertHeader "Location" "https://haskell.org" res
 
-    it "redirects with path and params" $ withApp $ do
-      res <- request $ baseReq { rawPathInfo = "/foo", rawQueryString = "?bar=baz" }
-      assertStatus 301 res
-      assertHeader "Location" "https://foo.com/foo?bar=baz" res
+  it "retuns 301 redirect on HEAD" $ withApp $ do
+    res <- request $ baseReq { requestMethod = "HEAD" }
+    assertStatus 301 res
+    assertHeader "Location" "https://haskell.org" res
 
-  describe "`httpsPort` setting" $ do
-    let withApp = run $ defaultConfig { httpsPort = 8443 }
+  it "retuns 405 disallow on POST" $ withApp $ do
+    res <- request $ baseReq { requestMethod = "POST" }
+    assertStatus 405 res
+    assertNoHeader "Location" res
 
-    it "redirects to specified port" $ withApp $ do
-      res <- request baseReq
-      assertStatus 301 res
-      assertHeader "Location" "https://haskell.org:8443" res
+  it "should not redirect secure request" $ withApp $ do
+    res <- request $ baseReq { isSecure = True }
+    assertStatus 200 res
+    assertBody "Hello, sailor" res
 
-    it "redirects with path and params" $ withApp $ do
-      res <- request $ baseReq { rawPathInfo = "/foo", rawQueryString = "?bar=baz" }
-      assertStatus 301 res
-      assertHeader "Location" "https://haskell.org:8443/foo?bar=baz" res
+  it "includes url path and params to redirect" $ withApp $ do
+    res <- request $ baseReq { rawPathInfo = "/foo", rawQueryString = "?bar=baz" }
+    assertStatus 301 res
+    assertHeader "Location" "https://haskell.org/foo?bar=baz" res
 
-  describe "`httpsIgnoreURL` setting" $ do
-    let withApp = run $ defaultConfig { httpsIgnoreURL = True }
+  it "request without `Host` header fails with 400 (Bad Request)" $ withApp $ do
+    res <- request defaultRequest
+    assertStatus 400 res
 
-    it "redirect without path" $ withApp $ do
-      res <- request $ baseReq { rawPathInfo = "/foo", rawQueryString = "?bar=baz" }
-      assertStatus 301 res
-      assertHeader "Location" "https://haskell.org" res
 
-  describe "`httpsTemporary` setting" $ do
-    let withApp = run $ defaultConfig { httpsTemporary = True }
+hostnameSpec :: Spec
+hostnameSpec = do
+  let withApp = run $ defaultConfig { httpsHostname = Just "foo.com" }
 
-    it "redirect without path" $ withApp $ do
-      res <- request baseReq
-      assertStatus 302 res
+  it "redirects to specified hostname" $ withApp $ do
+    res <- request baseReq
+    assertStatus 301 res
+    assertHeader "Location" "https://foo.com" res
 
-  describe "`skipDefaultPort` setting" $ do
-    let withApp = run $ defaultConfig { httpsSkipDefaultPort = False }
+  it "redirects with path and params" $ withApp $ do
+    res <- request $ baseReq { rawPathInfo = "/foo", rawQueryString = "?bar=baz" }
+    assertStatus 301 res
+    assertHeader "Location" "https://foo.com/foo?bar=baz" res
 
-    it "redirect without path" $ withApp $ do
-      res <- request baseReq
-      assertStatus 301 res
-      assertHeader "Location" "https://haskell.org:443" res
 
-  describe "`httsRedirectMethods` setting" $ do
-    let withApp = run $ defaultConfig { httpsRedirectMethods = [ "TRACE" ] }
+portSpec :: Spec
+portSpec = do
+  let withApp = run $ defaultConfig { httpsPort = 8443 }
 
-    it "default settings for GET is overwritten" $ withApp $ do
-      res <- request baseReq
-      assertStatus 405 res
+  it "redirects to specified port" $ withApp $ do
+    res <- request baseReq
+    assertStatus 301 res
+    assertHeader "Location" "https://haskell.org:8443" res
 
-    it "specified methods is redirected" $ withApp $ do
-      res <- request $ baseReq { requestMethod = "TRACE" }
-      assertStatus 301 res
+  it "redirects with path and params" $ withApp $ do
+    res <- request $ baseReq { rawPathInfo = "/foo", rawQueryString = "?bar=baz" }
+    assertStatus 301 res
+    assertHeader "Location" "https://haskell.org:8443/foo?bar=baz" res
 
-  describe "`httpsDisallowStatus` settings" $ do
-    let withApp = run $ defaultConfig { httpsDisallowStatus = status403 }
 
-    it "returns specified status for disallowed method" $ withApp $ do
-      res <- request $ baseReq { requestMethod = "POST" }
-      assertStatus 403 res
+ignoreURLSpec :: Spec
+ignoreURLSpec = do
+  let withApp = run $ defaultConfig { httpsIgnoreURL = True }
+
+  it "redirect without path" $ withApp $ do
+    res <- request $ baseReq { rawPathInfo = "/foo", rawQueryString = "?bar=baz" }
+    assertStatus 301 res
+    assertHeader "Location" "https://haskell.org" res
+
+
+temporarySpec :: Spec
+temporarySpec = do
+  let withApp = run $ defaultConfig { httpsTemporary = True }
+
+  it "redirect without path" $ withApp $ do
+    res <- request baseReq
+    assertStatus 302 res
+
+
+skipDefaultPortSpec :: Spec
+skipDefaultPortSpec = do
+  let withApp = run $ defaultConfig { httpsSkipDefaultPort = False }
+
+  it "redirect without path" $ withApp $ do
+    res <- request baseReq
+    assertStatus 301 res
+    assertHeader "Location" "https://haskell.org:443" res
+
+
+redirectMethodsSpec :: Spec
+redirectMethodsSpec = do
+  let withApp = run $ defaultConfig { httpsRedirectMethods = [ "TRACE" ] }
+
+  it "default settings for GET is overwritten" $ withApp $ do
+    res <- request baseReq
+    assertStatus 405 res
+
+  it "specified methods is redirected" $ withApp $ do
+    res <- request $ baseReq { requestMethod = "TRACE" }
+    assertStatus 301 res
+
+
+disallowStatusSpec :: Spec
+disallowStatusSpec = do
+  let withApp = run $ defaultConfig { httpsDisallowStatus = status403 }
+
+  it "returns specified status for disallowed method" $ withApp $ do
+    res <- request $ baseReq { requestMethod = "POST" }
+    assertStatus 403 res

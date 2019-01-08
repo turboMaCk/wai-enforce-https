@@ -5,7 +5,7 @@
 module Network.Wai.Middleware.EnforceHTTPS
   ( EnforceHTTPSConfig(..)
   , defaultConfig
-  , enforceHTTPS
+  , withConfiguration
   ) where
 
 import           Data.ByteString     (ByteString)
@@ -43,23 +43,21 @@ data EnforceHTTPSConfig = EnforceHTTPSConfig
 
 defaultConfig :: EnforceHTTPSConfig
 defaultConfig = EnforceHTTPSConfig
-  { httpsIsSecure = Wai.isSecure
-  , httpsHostname = Nothing
-  , httpsPort = 443
-  , httpsIgnoreURL = False
-  , httpsTemporary = False
+  { httpsIsSecure        = Wai.isSecure
+  , httpsHostname        = Nothing
+  , httpsPort            = 443
+  , httpsIgnoreURL       = False
+  , httpsTemporary       = False
   , httpsSkipDefaultPort = True
   , httpsRedirectMethods = [ "GET", "HEAD" ]
-  , httpsDisallowStatus = HTTP.methodNotAllowed405
+  , httpsDisallowStatus  = HTTP.methodNotAllowed405
   }
 
 
-enforceHTTPS :: EnforceHTTPSConfig -> Middleware
-enforceHTTPS conf@EnforceHTTPSConfig { .. } app req =
-  if httpsIsSecure req then
-    app req
-  else
-    redirect conf req
+withConfiguration :: EnforceHTTPSConfig -> Middleware
+withConfiguration conf@EnforceHTTPSConfig { .. } app req
+  | httpsIsSecure req = app req
+  | otherwise = redirect conf req
 
 
 redirect :: EnforceHTTPSConfig -> Application
