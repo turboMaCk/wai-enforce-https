@@ -6,6 +6,7 @@ module Network.Wai.Middleware.EnforceHTTPS
   , defaultConfig
   , def
   , withConf
+  , withResolver
   , xForwardedProto
   , azure
   , customProtoHeader

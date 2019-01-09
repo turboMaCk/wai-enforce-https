@@ -28,3 +28,75 @@ There are several practical weaknesses of that implementation this package inten
 | 405 with `Allow` support       | ☑                                | ❎                   |
 
 Overall this package aims to be **secure by default** and **configurable** as much as possible.
+
+## Examples
+
+This example is using [warp-tls]()
+and runs 2 servers:
+
+- HTTP server on port 8080
+- HTTPS server on port 8443
+
+if you open http://127.0.0.1:8080 in browser server returns redirect
+to https://127.0.0.1:8443
+
+```haskell
+{-# LANGUAGE OverloadedStrings #-}
+
+module Main where
+
+import           Control.Concurrent                  (forkIO)
+import           Network.HTTP.Types                  (status200)
+import           Network.Wai                         (Application, responseLBS)
+import           Network.Wai.Handler.Warp            (defaultSettings, run,
+                                                      setPort)
+import           Network.Wai.Handler.WarpTLS         (runTLS, tlsSettings)
+import           Network.Wai.Middleware.EnforceHTTPS (EnforceHTTPSConfig (..))
+
+import qualified Network.Wai.Middleware.EnforceHTTPS as EnforceHTTPS
+
+handler :: Application
+handler _ respond =
+   respond $ responseLBS status200 [] "Hello over HTTPS"
+
+httpsConf :: EnforceHTTPSConfig
+httpsConf = EnforceHTTPS.defaultConfig { httpsPort = 8443 }
+
+app :: Application
+app = EnforceHTTPS.withConf httpsConf handler
+
+main :: IO ()
+main = do
+  let tls = tlsSettings "examples/cert.pem" "examples/key.pem"
+  _ <- forkIO $ run 8080 app
+  runTLS tls (setPort (httpsPort httpsConf) defaultSettings) app
+```
+
+Another common example is running server behind reverse proxy.
+Say for instance we want to host our app on [Heroku]()
+while using its https support and make sure we
+redirect all HTTP traffic to HTTPS.
+Heroku is forwarding traffic with additional header containing
+information about protocol named `x-forwarded-proto`.
+
+```haskell
+{-# LANGUAGE OverloadedStrings #-}
+
+module Main where
+
+import           Network.HTTP.Types                  (status200)
+import           Network.Wai                         (Application, responseLBS)
+import           Network.Wai.Handler.Warp            (runEnv)
+
+import qualified Network.Wai.Middleware.EnforceHTTPS as EnforceHTTPS
+
+handler :: Application
+handler _ respond =
+   respond $ responseLBS status200 [] "Hello from behind proxy"
+
+app :: Application
+app = EnforceHTTPS.withResolver EnforceHTTPS.xForwardedProto handler
+
+main :: IO ()
+main = runEnv 8080 app
+```

@@ -12,28 +12,18 @@ import           Network.Wai.Middleware.EnforceHTTPS (EnforceHTTPSConfig (..))
 
 import qualified Network.Wai.Middleware.EnforceHTTPS as EnforceHTTPS
 
-
-port :: Int
-port = 8443
-
-
 handler :: Application
 handler _ respond =
    respond $ responseLBS status200 [] "Hello over HTTPS"
 
-
 httpsConf :: EnforceHTTPSConfig
-httpsConf =
-  EnforceHTTPS.defaultConfig { httpsPort = port }
-
+httpsConf = EnforceHTTPS.defaultConfig { httpsPort = 8443 }
 
 app :: Application
-app =
-  EnforceHTTPS.withConf httpsConf handler
-
+app = EnforceHTTPS.withConf httpsConf handler
 
 main :: IO ()
 main = do
   let tls = tlsSettings "examples/cert.pem" "examples/key.pem"
   _ <- forkIO $ run 8080 app
-  runTLS tls (setPort port defaultSettings) app
+  runTLS tls (setPort (httpsPort httpsConf) defaultSettings) app
