@@ -4,25 +4,25 @@
 module Network.Wai.Middleware.EnforceHTTPS
   ( EnforceHTTPSConfig(..)
   , defaultConfig
-  , withConfiguration
+  , withConf
   , xForwardedProto
   , azure
   , customProtoHeader
   , forwarded
   ) where
 
-import           Data.ByteString      (ByteString)
-import           Data.Maybe           (fromMaybe)
-import           Data.Monoid          ((<>))
-import           Network.HTTP.Types   (Method, Status)
-import           Network.Wai          (Application, Middleware, Request)
+import           Data.ByteString        (ByteString)
+import           Data.Maybe             (fromMaybe)
+import           Data.Monoid            ((<>))
+import           Network.HTTP.Types     (Method, Status)
+import           Network.Wai            (Application, Middleware, Request)
 
-import qualified Data.Text            as T
-import qualified Data.Text.Encoding   as TE
-import qualified Network.HTTP.Types   as HTTP
-import qualified Network.Wai          as Wai
-import qualified Data.CaseInsensitive as CaseInsensitive
+import qualified Data.CaseInsensitive   as CaseInsensitive
+import qualified Data.Text              as Text
+import qualified Data.Text.Encoding     as Text
 import qualified Network.HTTP.Forwarded as Forwarded
+import qualified Network.HTTP.Types     as HTTP
+import qualified Network.Wai            as Wai
 
 
 type HTTPSResolver =
@@ -54,8 +54,8 @@ defaultConfig = EnforceHTTPSConfig
   }
 
 
-withConfiguration :: EnforceHTTPSConfig -> Middleware
-withConfiguration conf@EnforceHTTPSConfig { .. } app req
+withConf :: EnforceHTTPSConfig -> Middleware
+withConf conf@EnforceHTTPSConfig { .. } app req
   | httpsIsSecure req = app req
   | otherwise = redirect conf req
 
@@ -74,7 +74,7 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
     ( status, headers ) =
       if reqMethod `elem` httpsRedirectMethods then
         ( if httpsTemporary then
-            HTTP.status302
+            HTTP.status307
           else
             HTTP.status301
         , pure . redirectURL
@@ -96,15 +96,20 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
       if httpsPort == 443 && httpsSkipDefaultPort then
         ""
       else
-        TE.encodeUtf8 $ (mappend ":") $ T.pack $ show httpsPort
+        Text.encodeUtf8 $ (mappend ":") $ Text.pack $ show httpsPort
 
     fullHost h = fromMaybe h httpsHostname <> port
     reqMethod = Wai.requestMethod req
 
 
-default' :: Middleware
-default' =
-  withConfiguration defaultConfig
+def :: Middleware
+def =
+  withConf defaultConfig
+
+
+withResolver :: HTTPSResolver -> Middleware
+withResolver resolver =
+  withConf $ defaultConfig { httpsIsSecure = resolver }
 
 
 -- RESOLVERS
