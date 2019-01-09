@@ -101,6 +101,11 @@ portSpec = do
     assertStatus 301 res
     assertHeader "Location" "https://haskell.org:8443/foo?bar=baz" res
 
+  it "removes doesn't stack ports" $ withApp $ do
+    res <- request $ baseReq { requestHeaderHost = Just "localhost:8080" }
+    assertStatus 301 res
+    assertHeader "Location" "https://localhost:8443" res
+
 
 ignoreURLSpec :: Spec
 ignoreURLSpec =

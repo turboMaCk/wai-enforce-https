@@ -4,6 +4,7 @@
 module Network.Wai.Middleware.EnforceHTTPS
   ( EnforceHTTPSConfig(..)
   , defaultConfig
+  , def
   , withConf
   , xForwardedProto
   , azure
@@ -17,6 +18,7 @@ import           Data.Monoid            ((<>))
 import           Network.HTTP.Types     (Method, Status)
 import           Network.Wai            (Application, Middleware, Request)
 
+import qualified Data.ByteString        as ByteString
 import qualified Data.CaseInsensitive   as CaseInsensitive
 import qualified Data.Text              as Text
 import qualified Data.Text.Encoding     as Text
@@ -68,7 +70,7 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
     -- that lacks a Host header field or contains more than one.
     -- source: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Host
     Nothing -> Wai.responseBuilder HTTP.status400 [] mempty
-    Just h  -> Wai.responseBuilder status (headers h) mempty
+    Just h  -> Wai.responseBuilder status (headers $ stripPort h) mempty
 
   where
     ( status, headers ) =
@@ -98,8 +100,13 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
       else
         Text.encodeUtf8 $ (mappend ":") $ Text.pack $ show httpsPort
 
+    stripPort h =
+      fst $ ByteString.break (== 58) h -- colon
+
     fullHost h = fromMaybe h httpsHostname <> port
     reqMethod = Wai.requestMethod req
+
+
 
 
 def :: Middleware

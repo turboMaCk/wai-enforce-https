@@ -17,14 +17,14 @@ protocol of a request.
 package comes with `Network.Wai.Middleware.ForceSSL` module exposing middleware intended for same purpose.
 There are several practical weaknesses of that implementation this package intends to mitigate.
 
-| Behaviour                      | ForceSSL (wai-extra) | EnforceHTTPS (wai-enforce-https) |
-|--------------------------------|----------------------|----------------------------------|
-| Redirecting methods by default | All                  | `GET`, `HEAD`                    |
-| Redirect status                | 307                  | 301 (default) or 307 (optional)  |
-| Safe against header spoofing   | ❎                   | ✅                               |
-| Forwarded spec compliant       | ❎                   | ✅                               |
-| Configurable port              | ❎                   | ✅                               |
-| Configurable host              | ❎                   | ✅                               |
-| 405 with `Allow` support       | ❎                   | ✅                               |
+| Behaviour                      | EnforceHTTPS (wai-enforce-https) | ForceSSL (wai-extra) |
+|--------------------------------|----------------------------------|----------------------|
+| Redirecting methods by default | `GET`, `HEAD`                    | All                  |
+| Redirect status                | 301 (default) or 307 (optional)  | 307                  |
+| Safe against header spoofing   | ☑                                | ❎                   |
+| Forwarded spec compliant       | ☑                                | ❎                   |
+| Configurable port              | ☑                                | ❎                   |
+| Configurable host              | ☑                                | ❎                   |
+| 405 with `Allow` support       | ☑                                | ❎                   |
 
 Overall this package aims to be **secure by default** and **configurable** as much as possible.
