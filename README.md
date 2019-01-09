@@ -19,12 +19,12 @@ There are several practical weaknesses of that implementation this package inten
 
 | Behaviour                      | ForceSSL (wai-extra) | EnforceHTTPS (wai-enforce-https) |
 |--------------------------------|----------------------|----------------------------------|
-| Possible to spoof headers      | yes                  | no                               |
 | Redirecting methods by default | All                  | `GET`, `HEAD`                    |
 | Redirect status                | 307                  | 301 (default) or 307 (optional)  |
-| Forwarded spec compliant       | no                   | yes                              |
-| Configurable port              | no                   | yes                              |
-| Configurable host              | no                   | yes                              |
-| 405 with `Allow` support       | no                   | yes                              |
+| Safe against header spoofing   | ❎                   | ✅                               |
+| Forwarded spec compliant       | ❎                   | ✅                               |
+| Configurable port              | ❎                   | ✅                               |
+| Configurable host              | ❎                   | ✅                               |
+| 405 with `Allow` support       | ❎                   | ✅                               |
 
 Overall this package aims to be **secure by default** and **configurable** as much as possible.
