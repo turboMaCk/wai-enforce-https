@@ -5,7 +5,7 @@
 
 [Wai](https://hackage.haskell.org/package/wai) middleware enforcing HTTPS connection on any incomming request.
 In case of non-encrypted HTTP traffic is redirected using `301 Permanent Redirect`
-(or optionally `302 Temporary Redirect`).
+(or optionally `307 Temporary Redirect`).
 
 Middleware is compatible with reverse proxies (load balancers) like onese
 used by Heroku, Google Cloud (Ingress), Azure by explicitely choosing function for detecting
