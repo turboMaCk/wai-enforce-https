@@ -22,7 +22,7 @@ There are several practical weaknesses of this implementation compare to one pro
 | Redirect status                | 301 (default) or 307 (optional)  | 307                              |
 | Safe against header spoofing   | :heavy_check_mark:  yes          | :negative_squared_cross_mark: no |
 | Forwarded spec compliant       | 👍 yes                           | 👎 no                            |
-| Configurable port              | :ballot-box-with-check: yes      | :negative_squared_cross_mark: no |
+| Configurable port              | ✅ yes                           | ❌ no                            |
 | Configurable host              | :ballot-box-with-check: yes      | :negative_squared_cross_mark: no |
 | 405 with `Allow` support       | :ballot-box-with-check: yes      | :negative_squared_cross_mark: no |
 
