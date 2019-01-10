@@ -16,15 +16,15 @@ with Heroku, Google Cloud (Ingress), Azure or any other type of PAS or Cloud pro
 package comes with `Network.Wai.Middleware.ForceSSL` module exposing middleware intended for the same purpose.
 There are several practical weaknesses of this implementation compare to one provided by wai-enforce-https.
 
-| Behaviour                      | EnforceHTTPS (wai-enforce-https) | ForceSSL (wai-extra)             |
-|--------------------------------|----------------------------------|----------------------------------|
-| Redirecting methods by default | `GET`, `HEAD`                    | All                              |
-| Redirect status                | 301 (default) or 307 (optional)  | 307                              |
-| Safe against header spoofing   | :heavy_check_mark:  yes          | :negative_squared_cross_mark: no |
-| Forwarded spec compliant       | ✔ yes                           | 👎 no                            |
-| Configurable port              | ✅ yes                           | ❌ no                            |
-| Configurable host              | :ballot-box-with-check: yes      | :negative_squared_cross_mark: no |
-| 405 with `Allow` support       | :ballot-box-with-check: yes      | :negative_squared_cross_mark: no |
+| Behaviour                      | EnforceHTTPS (wai-enforce-https) | ForceSSL (wai-extra) |
+|--------------------------------|----------------------------------|----------------------|
+| Redirecting methods by default | `GET`, `HEAD`                    | All                  |
+| Redirect status                | 301 (default) or 307 (optional)  | 307                  |
+| Safe against header spoofing   | ✔ yes                            | ❌ no                |
+| Forwarded spec compliant       | ✔ yes                            | ❌ no                |
+| Configurable port              | ✔ yes                            | ❌ no                |
+| Configurable host              | ✔ yes                            | ❌ no                |
+| 405 with `Allow` support       | ✔ yes                            | ❌ no                |
 
 Overall, this package aims to be **secure by default** and **configurable** as much as possible
 to fit any specific needs.
