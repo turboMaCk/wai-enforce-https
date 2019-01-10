@@ -10,7 +10,7 @@ import           Test.Hspec
 
 
 app :: EnforceHTTPSConfig -> Application
-app conf = withConfiguration conf $
+app conf = withConf conf $
   -- reference to: https://en.wikipedia.org/wiki/Zork
   \_ respond -> respond $ responseLBS status200 [] "Hello, sailor"
 
@@ -101,11 +101,16 @@ portSpec = do
     assertStatus 301 res
     assertHeader "Location" "https://haskell.org:8443/foo?bar=baz" res
 
+  it "removes doesn't stack ports" $ withApp $ do
+    res <- request $ baseReq { requestHeaderHost = Just "localhost:8080" }
+    assertStatus 301 res
+    assertHeader "Location" "https://localhost:8443" res
+
 
 ignoreURLSpec :: Spec
-ignoreURLSpec = do
+ignoreURLSpec =
   let withApp = run $ defaultConfig { httpsIgnoreURL = True }
-
+  in
   it "redirect without path" $ withApp $ do
     res <- request $ baseReq { rawPathInfo = "/foo", rawQueryString = "?bar=baz" }
     assertStatus 301 res
@@ -113,18 +118,18 @@ ignoreURLSpec = do
 
 
 temporarySpec :: Spec
-temporarySpec = do
+temporarySpec =
   let withApp = run $ defaultConfig { httpsTemporary = True }
-
+  in
   it "redirect without path" $ withApp $ do
     res <- request baseReq
-    assertStatus 302 res
+    assertStatus 307 res
 
 
 skipDefaultPortSpec :: Spec
-skipDefaultPortSpec = do
+skipDefaultPortSpec =
   let withApp = run $ defaultConfig { httpsSkipDefaultPort = False }
-
+  in
   it "redirect without path" $ withApp $ do
     res <- request baseReq
     assertStatus 301 res
