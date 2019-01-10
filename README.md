@@ -3,35 +3,35 @@
     <p>Safely enforce HTTPS in wai application</p>
 </div>
 
-[Wai](https://hackage.haskell.org/package/wai) middleware enforcing HTTPS connection on any incomming request.
-In case of non-encrypted HTTP traffic is redirected using `301 Permanent Redirect`
-(or optionally `307 Temporary Redirect`).
+[Wai](https://hackage.haskell.org/package/wai) middleware enforcing HTTPS protocol on any incomming request.
+In case of non-encrypted HTTP, traffic is redirected using `301 Permanent Redirect`
+or optionally `307 Temporary Redirect`.
 
-Middleware is compatible with reverse proxies (load balancers) like onese
-used by Heroku, Google Cloud (Ingress), Azure by explicitely choosing function for detecting
-protocol of a request.
+Middleware has compatibility modes for various reverse proxies (load balancers) and therefore can be used
+with Heroku, Google Cloud (Ingress), Azure or any other type of PAS or Cloud provider.
 
-## Comparision with Network.Wai.Middleware.ForceSSL
+## Comparision with ForceSSL
 
 [Wai-Extra](https://hackage.haskell.org/package/wai-extra-3.0.24.3/docs/Network-Wai-Middleware-ForceSSL.html)
-package comes with `Network.Wai.Middleware.ForceSSL` module exposing middleware intended for same purpose.
-There are several practical weaknesses of that implementation this package intends to mitigate.
+package comes with `Network.Wai.Middleware.ForceSSL` module exposing middleware intended for the same purpose.
+There are several practical weaknesses of this implementation compare to one provided by wai-enforce-https.
 
-| Behaviour                      | EnforceHTTPS (wai-enforce-https) | ForceSSL (wai-extra) |
-|--------------------------------|----------------------------------|----------------------|
-| Redirecting methods by default | `GET`, `HEAD`                    | All                  |
-| Redirect status                | 301 (default) or 307 (optional)  | 307                  |
-| Safe against header spoofing   | ☑                                | ❎                   |
-| Forwarded spec compliant       | ☑                                | ❎                   |
-| Configurable port              | ☑                                | ❎                   |
-| Configurable host              | ☑                                | ❎                   |
-| 405 with `Allow` support       | ☑                                | ❎                   |
+| Behaviour                      | EnforceHTTPS (wai-enforce-https) | ForceSSL (wai-extra)             |
+|--------------------------------|----------------------------------|----------------------------------|
+| Redirecting methods by default | `GET`, `HEAD`                    | All                              |
+| Redirect status                | 301 (default) or 307 (optional)  | 307                              |
+| Safe against header spoofing   | :ballot-box-with-check: yes      | :negative_squared_cross_mark: no |
+| Forwarded spec compliant       | :ballot-box-with-check: yes      | :negative_squared_cross_mark: no |
+| Configurable port              | :ballot-box-with-check: yes      | :negative_squared_cross_mark: no |
+| Configurable host              | :ballot-box-with-check: yes      | :negative_squared_cross_mark: no |
+| 405 with `Allow` support       | :ballot-box-with-check: yes      | :negative_squared_cross_mark: no |
 
-Overall this package aims to be **secure by default** and **configurable** as much as possible.
+Overall, this package aims to be **secure by default** and **configurable** as much as possible
+to fit any specific needs.
 
 ## Examples
 
-This example is using [warp-tls]()
+This example is using [warp-tls](https://hackage.haskell.org/package/warp-tls)
 and runs 2 servers:
 
 - HTTP server on port 8080
@@ -73,7 +73,7 @@ main = do
 ```
 
 Another common example is running server behind reverse proxy.
-Say for instance we want to host our app on [Heroku]()
+Say for instance we want to host our app on [Heroku](https://heroku.com)
 while using its https support and make sure we
 redirect all HTTP traffic to HTTPS.
 Heroku is forwarding traffic with additional header containing
