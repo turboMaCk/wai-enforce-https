@@ -28,11 +28,8 @@ spec = do
         F.forwardedHost parsed `valIs` "haskell.org"
         F.forwardedProto parsed `valIsInsensitive` "https"
 
-      it "show in correct format" $ do
-        show parsed `shouldBe` show ("Forwarded: " <> val)
-
       it "should encode" $ do
-        F.encodeForwarded parsed `shouldBe` val
+        F.serializeForwarded parsed `shouldBe` val
 
       it "parses even without spaces" $ do
         let p = F.parseForwarded "by=foo;for=bar;host=haskell.org;proto=https"
@@ -55,8 +52,8 @@ spec = do
       it "show in correct format" $ do
         show parsed `shouldBe` show ("Forwarded: " <> val)
 
-      it "should encode" $ do
-        F.encodeForwarded parsed `shouldBe` val
+      it "should serialize" $ do
+        F.serializeForwarded parsed `shouldBe` val
 
   describe "properties" $ do
     it "proto part is case insensitive" $ do
