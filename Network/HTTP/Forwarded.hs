@@ -97,6 +97,8 @@ breakDiscard w s = (x, ByteString.drop 1 y)
       ByteString.break (== w) s
 
 
+-- | Serialize `Forwarded` data type back
+-- to ByteString representation.
 serializeForwarded :: Forwarded -> ByteString
 serializeForwarded Forwarded { .. } =
     join "; " (catMaybes xs)
