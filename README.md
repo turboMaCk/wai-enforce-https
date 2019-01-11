@@ -18,7 +18,7 @@ There are several practical weaknesses of this implementation compare to one pro
 
 | Behaviour                       | EnforceHTTPS (wai-enforce-https)    | ForceSSL (wai-extra) |
 |---------------------------------|-------------------------------------|----------------------|
-| Redirecting methods by default  | `GET`, `HEAD`                       | All                  |
+| Redirecting methods by default  | `GET`, `HEAD` (by default)          | All                  |
 | Redirect status                 | `301` (default) or `307` (optional) | `307`                |
 | Safe against header spoofing    | ✔ yes                               | ❌ no                |
 | Forwarded spec compliant        | ✔ yes                               | ❌ no                |
@@ -28,6 +28,12 @@ There are several practical weaknesses of this implementation compare to one pro
 
 Overall, this package aims to be **secure by default** and **configurable** as much as possible
 to fit any specific needs.
+
+## Forwarded
+
+In addition to the main functionality (enforcement of HTTPS) this package also
+comes with module for parsing and encoding [Forwarded](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Forwarded)
+HTTP header.
 
 ## Examples
 
