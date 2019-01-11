@@ -55,6 +55,7 @@ defaultSettingsSpec = do
     res <- request $ baseReq { requestMethod = "POST" }
     assertStatus 405 res
     assertNoHeader "Location" res
+    assertHeader "Allow" "GET, HEAD" res
 
   it "should not redirect secure request" $ withApp $ do
     res <- request $ baseReq { isSecure = True }

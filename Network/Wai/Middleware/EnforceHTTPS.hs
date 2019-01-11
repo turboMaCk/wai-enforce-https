@@ -116,8 +116,9 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
         )
 
       else
-        -- @TODO: implement `Allowed` header
-        ( httpsDisallowStatus, const [] )
+        ( httpsDisallowStatus
+        , const [ ("Allow", ByteString.intercalate ", " httpsRedirectMethods) ]
+        )
 
     redirectURL h =
       ( HTTP.hLocation, "https://" <> fullHost h <> path)

@@ -101,14 +101,8 @@ breakDiscard w s = (x, ByteString.drop 1 y)
 -- to ByteString representation.
 serializeForwarded :: Forwarded -> ByteString
 serializeForwarded Forwarded { .. } =
-    join "; " (catMaybes xs)
+    ByteString.intercalate "; " $ catMaybes xs
     where
-      join by = foldr (join' by) ""
-
-      join' by part str
-        | str == "" = part
-        | otherwise = part <> by <> str
-
       xs =
         [ strVal "by" forwardedBy
         , strVal "for" forwardedFor
