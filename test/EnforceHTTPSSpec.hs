@@ -10,7 +10,7 @@ import           Test.Hspec
 
 
 app :: EnforceHTTPSConfig -> Application
-app conf = withConf conf $
+app conf = withConfig conf $
   -- reference to: https://en.wikipedia.org/wiki/Zork
   \_ respond -> respond $ responseLBS status200 [] "Hello, sailor"
 
