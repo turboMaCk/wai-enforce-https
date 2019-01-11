@@ -49,9 +49,6 @@ spec = do
         F.forwardedHost parsed `shouldBe` Nothing
         F.forwardedProto parsed `valIsInsensitive` "http"
 
-      it "show in correct format" $ do
-        show parsed `shouldBe` show ("Forwarded: " <> val)
-
       it "should serialize" $ do
         F.serializeForwarded parsed `shouldBe` val
 
