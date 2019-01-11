@@ -167,7 +167,7 @@ type HTTPSResolver =
   Request -> Bool
 
 
--- | Resolver checking value of `x-forwarded-proto` HTTP header.
+-- | Resolver checking value of @x-forwarded-proto@ HTTP header.
 -- This header is for instance used by Heroku or GCP Ingress
 -- among many others.
 --
@@ -193,12 +193,12 @@ azure req =
 
 
 -- | Some reverse proxies (Kong) are using
--- values similar to `x-forwarded-proto`
+-- values similar to @x-forwarded-proto@
 -- but are using different headers.
 -- This resolver allows you to specify name of header
 -- which should be used for the ckeck.
 -- Like `xForwardedProto`, request is considered
--- as being secure if value of header is `https`.
+-- as being secure if value of header is @https@.
 customProtoHeader :: ByteString -> HTTPSResolver
 customProtoHeader header req =
   maybe False (== "https") maybeHederVal
@@ -208,14 +208,14 @@ customProtoHeader header req =
 
 
 -- | Forwarded HTTP header is relatively new standard
--- which should replaced all `x-*` adhoc headers by
+-- which should replaced all @x-*@ adhoc headers by
 -- standardized one.
--- This resolver is using `proto=x` part of the header
--- and check for equality with `https` value.
+-- This resolver is using @proto=foo@ part of the header
+-- and check for equality with @https@ value.
 --
 -- More information can be found on [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Forwarded)
--- Complete implementation of `Forwarded` is located in
--- `Network.HTTP.Forwarded` module
+-- Complete implementation of @Forwarded@ is located in
+-- @Network.HTTP.Forwarded@ module
 forwarded :: HTTPSResolver
 forwarded req =
   maybe False check maybeHeader
