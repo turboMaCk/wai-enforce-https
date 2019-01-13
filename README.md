@@ -69,7 +69,7 @@ httpsConf :: EnforceHTTPSConfig
 httpsConf = EnforceHTTPS.defaultConfig { httpsPort = 8443 }
 
 app :: Application
-app = EnforceHTTPS.withConf httpsConf handler
+app = EnforceHTTPS.withConfig httpsConf handler
 
 main :: IO ()
 main = do
