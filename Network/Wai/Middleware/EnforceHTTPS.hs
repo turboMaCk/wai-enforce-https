@@ -117,7 +117,7 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
             HTTP.status307
           else
             HTTP.status301
-        , pure . redirectURL
+        , return . redirectURL
         )
 
       else
