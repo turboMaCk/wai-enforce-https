@@ -34,7 +34,7 @@ import           Network.HTTP.Types     (Method, Status)
 import           Network.Wai            (Application, Middleware, Request)
 
 #if __GLASGOW_HASKELL__ < 710
-import Data.Monoid (mempty)
+import Data.Monoid (mempty, mappend)
 #endif
 
 import qualified Data.ByteString        as ByteString
