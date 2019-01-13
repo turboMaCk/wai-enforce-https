@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP               #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
@@ -22,6 +23,10 @@ import           Data.CaseInsensitive (CI)
 import           Data.Maybe           (catMaybes)
 import           Data.Monoid          ((<>))
 import           Data.Word            (Word8)
+
+#if __GLASGOW_HASKELL__ < 710
+import Control.Applicative ((<$>))
+#endif
 
 import qualified Data.ByteString      as ByteString
 import qualified Data.CaseInsensitive as CaseInsensitive
