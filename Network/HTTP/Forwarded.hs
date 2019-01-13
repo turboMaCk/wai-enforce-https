@@ -53,14 +53,12 @@ empty = Forwarded
 --
 -- In case of Wai you can extract headers as following:
 --
--- @
--- :set -XOverloadedStrings
--- import Network.Wai
--- import Network.HTTP.Forwarded
--- getForwarded req = parseForwarded <$> "forwarded" `lookup` requestHeaders req
--- :t getForwarded
--- getForwarded :: Request -> Maybe Forwarded
--- @
+-- > :set -XOverloadedStrings
+-- > import Network.Wai
+-- > import Network.HTTP.Forwarded
+-- > getForwarded req = parseForwarded <$> "forwarded" `lookup` requestHeaders req
+-- > :t getForwarded
+-- > getForwarded :: Request -> Maybe Forwarded
 parseForwarded :: ByteString -> Forwarded
 parseForwarded = foldr accumulate empty . parseForwarded'
   where

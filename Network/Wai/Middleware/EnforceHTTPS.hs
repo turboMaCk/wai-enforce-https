@@ -117,7 +117,11 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
 
       else
         ( httpsDisallowStatus
-        , const [ ("Allow", ByteString.intercalate ", " httpsRedirectMethods) ]
+        , const $
+          if httpsDisallowStatus == HTTP.methodNotAllowed405 then
+            [ ("Allow", ByteString.intercalate ", " httpsRedirectMethods) ]
+          else
+            []
         )
 
     redirectURL h =

@@ -157,6 +157,7 @@ disallowStatusSpec =
   it "returns specified status for disallowed method" $ withApp $ do
     res <- request $ baseReq { requestMethod = "POST" }
     assertStatus 403 res
+    assertNoHeader "Allow" res
 
 
 resolversSpec :: Spec
