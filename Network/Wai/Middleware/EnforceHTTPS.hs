@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP               #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 
@@ -31,6 +32,10 @@ import           Data.Maybe             (fromMaybe)
 import           Data.Monoid            ((<>))
 import           Network.HTTP.Types     (Method, Status)
 import           Network.Wai            (Application, Middleware, Request)
+
+#if __GLASGOW_HASKELL__ < 710
+import Data.Monoid (mempty, mappend)
+#endif
 
 import qualified Data.ByteString        as ByteString
 import qualified Data.CaseInsensitive   as CaseInsensitive
@@ -112,7 +117,7 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
             HTTP.status307
           else
             HTTP.status301
-        , pure . redirectURL
+        , return . redirectURL
         )
 
       else

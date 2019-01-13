@@ -1,5 +1,8 @@
 <div align="center">
     <h1>Wai Enforce HTTPS</h1>
+    <a href="https://travis-ci.org/turboMaCk/wai-enforce-https">
+        <img src="https://travis-ci.org/turboMaCk/wai-enforce-https.svg?branch=master" alt="build">
+    </a>
     <p>Safely enforce HTTPS in wai application</p>
 </div>
 
@@ -69,7 +72,7 @@ httpsConf :: EnforceHTTPSConfig
 httpsConf = EnforceHTTPS.defaultConfig { httpsPort = 8443 }
 
 app :: Application
-app = EnforceHTTPS.withConf httpsConf handler
+app = EnforceHTTPS.withConfig httpsConf handler
 
 main :: IO ()
 main = do
