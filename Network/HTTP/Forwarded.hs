@@ -20,6 +20,7 @@ module Network.HTTP.Forwarded
 import           Data.ByteString      (ByteString)
 import           Data.CaseInsensitive (CI)
 import           Data.Maybe           (catMaybes)
+import           Data.Monoid          ((<>))
 import           Data.Word            (Word8)
 
 import qualified Data.ByteString      as ByteString
