@@ -1,9 +1,9 @@
 <div align="center">
     <h1>Wai Enforce HTTPS</h1>
-    <p>Safely enforce HTTPS in wai application</p>
     <a href="https://travis-ci.org/turboMaCk/wai-enforce-https">
         <img src="https://travis-ci.org/turboMaCk/wai-enforce-https.svg?branch=master" alt="build">
     </a>
+    <p>Safely enforce HTTPS in wai application</p>
 </div>
 
 [Wai](https://hackage.haskell.org/package/wai) middleware enforcing HTTPS protocol on any incomming request.
