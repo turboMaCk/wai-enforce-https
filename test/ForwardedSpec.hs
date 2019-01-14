@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+
 module ForwardedSpec where
 
 import           Data.ByteString        (ByteString)
@@ -10,6 +11,7 @@ import qualified Network.HTTP.Forwarded as F
 
 valIs :: Maybe ByteString -> ByteString -> Expectation
 valIs a b = shouldBe a (Just b)
+
 
 valIsInsensitive :: Maybe (CI.CI ByteString) -> ByteString -> Expectation
 valIsInsensitive a b = shouldBe a (Just $ CI.mk b)

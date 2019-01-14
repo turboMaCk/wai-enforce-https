@@ -100,6 +100,7 @@ withConfig conf@EnforceHTTPSConfig { .. } app req
   | httpsIsSecure req = app req
   | otherwise = redirect conf req
 
+
 redirect :: EnforceHTTPSConfig -> Application
 redirect EnforceHTTPSConfig { .. } req respond = respond $
   case Wai.requestHeaderHost req of

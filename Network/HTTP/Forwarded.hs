@@ -25,11 +25,12 @@ import           Data.Monoid          ((<>))
 import           Data.Word            (Word8)
 
 #if __GLASGOW_HASKELL__ < 710
-import Control.Applicative ((<$>))
+import           Control.Applicative  ((<$>))
 #endif
 
 import qualified Data.ByteString      as ByteString
 import qualified Data.CaseInsensitive as CaseInsensitive
+import qualified Data.Char            as Char
 
 
 -- | Representation of Forwarded header data
