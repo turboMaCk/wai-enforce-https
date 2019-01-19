@@ -49,16 +49,16 @@ import qualified Network.Wai            as Wai
 -- | === Configuration
 --
 -- `EnforceHTTPSConfig` does export constructor
--- which should not colide with ny other functions
+-- which should not collide with ny other functions
 -- and therefore can be exposed in import
 --
 -- > import Network.Wai.Middleware.EnforceHTTPS (EnforceHTTPSConfig(..))
 --
 -- __Default configuration is recommended__ but you're free
--- to overide any default value if you need to.
+-- to override any default value if you need to.
 --
 -- Configuration of `httpsIsSecure` can be set using `withResolver`
--- function which is prefered way for overwriting default `Resolver` .
+-- function which is preferred way for overwriting default `Resolver` .
 data EnforceHTTPSConfig = EnforceHTTPSConfig
     { httpsIsSecure        :: HTTPSResolver
     , httpsHostname        :: Maybe ByteString
@@ -80,7 +80,7 @@ data EnforceHTTPSConfig = EnforceHTTPSConfig
 -- * uses permanent redirect (@301@)
 -- * doesn't include @port@ in @Location@ header id port is @443@
 -- * redirects @GET@ and @HEAD@ methods
--- * all /other/ methods are resolved with @405@ (Method not Allowed) and with appropriete @Allowed@ header
+-- * all /other/ methods are resolved with @405@ (Method not Allowed) and with appropriate @Allowed@ header
 defaultConfig :: EnforceHTTPSConfig
 defaultConfig = EnforceHTTPSConfig
   { httpsIsSecure        = Wai.isSecure
@@ -160,7 +160,7 @@ def =
 
 
 -- | Construct middleware with provided `Resolver`
--- See `Resolver` section for informations.
+-- See `Resolver` section for information.
 withResolver :: HTTPSResolver -> Middleware
 withResolver resolver =
   withConfig $ defaultConfig { httpsIsSecure = resolver }
@@ -207,7 +207,7 @@ azure req =
 -- values similar to @x-forwarded-proto@
 -- but are using different headers.
 -- This resolver allows you to specify name of header
--- which should be used for the ckeck.
+-- which should be used for the check.
 -- Like `xForwardedProto`, request is considered
 -- as being secure if value of header is @https@.
 customProtoHeader :: ByteString -> HTTPSResolver
