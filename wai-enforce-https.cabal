@@ -4,7 +4,7 @@
 name:                wai-enforce-https
 version:             0.0.1
 synopsis:            Enforce HTTPS in Wai server app safely.
-description:         Wai middleware enforcing HTTPS protocol on any incomming request. In case of non-encrypted HTTP, traffic is redirected using 301 Permanent Redirect or optionally 307 Temporary Redirect. Middleware has compatibility modes for various reverse proxies (load balancers) and therefore can be used with Heroku, Google Cloud (Ingress), Azure or any other type of PAS or Cloud provider.
+description:         Wai middleware enforcing HTTPS protocol on any incoming request. In case of non-encrypted HTTP, traffic is redirected using 301 Permanent Redirect or optionally 307 Temporary Redirect. Middleware has compatibility modes for various reverse proxies (load balancers) and therefore can be used with Heroku, Google Cloud (Ingress), Azure or any other type of PAS or Cloud provider.
 license:             BSD3
 license-file:        LICENSE
 author:              Marek Fajkus

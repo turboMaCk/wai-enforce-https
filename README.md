@@ -6,20 +6,20 @@
     <p>Safely enforce HTTPS in wai application</p>
 </div>
 
-[Wai](https://hackage.haskell.org/package/wai) middleware enforcing HTTPS protocol on any incomming request.
+[Wai](https://hackage.haskell.org/package/wai) middleware enforcing HTTPS protocol on any incoming request.
 In case of non-encrypted HTTP, traffic is redirected using `301 Permanent Redirect`
 or optionally `307 Temporary Redirect`.
 
 Middleware has compatibility modes for various reverse proxies (load balancers) and therefore can be used
 with Heroku, Google Cloud (Ingress), Azure or any other type of PAS or Cloud provider.
 
-## Comparision with ForceSSL
+## Comparison with ForceSSL
 
 [Wai-Extra](https://hackage.haskell.org/package/wai-extra-3.0.24.3/docs/Network-Wai-Middleware-ForceSSL.html)
 package comes with `Network.Wai.Middleware.ForceSSL` module exposing middleware intended for the same purpose.
 There are several practical weaknesses of this implementation compare to one provided by wai-enforce-https.
 
-| Behaviour                       | EnforceHTTPS (wai-enforce-https)    | ForceSSL (wai-extra) |
+| Behavior                        | EnforceHTTPS (wai-enforce-https)    | ForceSSL (wai-extra) |
 |---------------------------------|-------------------------------------|----------------------|
 | Redirecting methods by default  | `GET`, `HEAD` (by default)          | All                  |
 | Redirect status                 | `301` (default) or `307` (optional) | `307`                |
