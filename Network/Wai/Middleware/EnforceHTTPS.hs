@@ -16,13 +16,13 @@
 -- > import qualified Network.Wai.Middleware.EnforceHTTPS as EnforceHTTPS
 
 module Network.Wai.Middleware.EnforceHTTPS
-  ( def
+  ( EnforceHTTPSConfig(..)
+  , def
   , withResolver
   , xForwardedProto
   , azure
   , forwarded
   , customProtoHeader
-  , EnforceHTTPSConfig(..)
   , defaultConfig
   , withConfig
   ) where
@@ -34,7 +34,7 @@ import           Network.HTTP.Types     (Method, Status)
 import           Network.Wai            (Application, Middleware, Request)
 
 #if __GLASGOW_HASKELL__ < 710
-import Data.Monoid (mempty, mappend)
+import           Data.Monoid            (mappend, mempty)
 #endif
 
 import qualified Data.ByteString        as ByteString
@@ -66,7 +66,7 @@ data EnforceHTTPSConfig = EnforceHTTPSConfig
     , httpsIgnoreURL       :: Bool
     , httpsTemporary       :: Bool
     , httpsSkipDefaultPort :: Bool
-    , httpsRedirectMethods :: [ Method ]
+    , httpsRedirectMethods :: [Method]
     , httpsDisallowStatus  :: Status
     }
 
