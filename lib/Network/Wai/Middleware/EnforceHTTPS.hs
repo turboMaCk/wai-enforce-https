@@ -14,17 +14,50 @@
 -- This module is intended to be imported @qualified@
 --
 -- > import qualified Network.Wai.Middleware.EnforceHTTPS as EnforceHTTPS
+--
+-- = Example Usage
+--
+-- Following is the most typical config.
+-- That is GCP, AWS and Heroku compatible setting
+-- using @x-forwarded-proto@ header check and default configuration.
+--
+-- > {-# LANGUAGE OverloadedStrings #-}
+-- >
+-- > module Main where
+-- >
+-- > import           Network.HTTP.Types                  (status200)
+-- > import           Network.Wai                         (Application, responseLBS)
+-- > import           Network.Wai.Handler.Warp            (runEnv)
+-- >
+-- > import qualified Network.Wai.Middleware.EnforceHTTPS as EnforceHTTPS
+-- >
+-- > handler :: Application
+-- > handler _ respond = respond $
+-- >     responseLBS status200 [] "Hello from behind proxy"
+-- >
+-- > app :: Application
+-- > app = EnforceHTTPS.withResolver EnforceHTTPS.xForwardedProto handler
+-- >
+-- > main :: IO ()
+-- > main = runEnv 8080 app
 
 module Network.Wai.Middleware.EnforceHTTPS
-  ( def
+  (
+ -- * Configuration and Initialization
+    EnforceHTTPSConfig(..)
+  , defaultConfig
+  , def
   , withResolver
+  , withConfig
+ -- * Provided Resolvers
+ -- | This module provides most common implementation
+ -- of rrsolvers used by various cloud providers and
+ -- reverse proxy implemetations.
+  , HTTPSResolver
   , xForwardedProto
   , azure
   , forwarded
   , customProtoHeader
-  , EnforceHTTPSConfig(..)
-  , defaultConfig
-  , withConfig
   ) where
 
 import           Data.ByteString        (ByteString)
@@ -34,7 +67,7 @@ import           Network.HTTP.Types     (Method, Status)
 import           Network.Wai            (Application, Middleware, Request)
 
 #if __GLASGOW_HASKELL__ < 710
-import Data.Monoid (mempty, mappend)
+import           Data.Monoid            (mappend, mempty)
 #endif
 
 import qualified Data.ByteString        as ByteString
@@ -49,7 +82,7 @@ import qualified Network.Wai            as Wai
 -- | === Configuration
 --
 -- `EnforceHTTPSConfig` does export constructor
--- which should not collide with ny other functions
+-- which should not collide with any other functions
 -- and therefore can be exposed in import
 --
 -- > import Network.Wai.Middleware.EnforceHTTPS (EnforceHTTPSConfig(..))
@@ -58,21 +91,21 @@ import qualified Network.Wai            as Wai
 -- to override any default value if you need to.
 --
 -- Configuration of `httpsIsSecure` can be set using `withResolver`
--- function which is preferred way for overwriting default `Resolver` .
+-- function which is preferred way for overwriting default `Resolver`.
 data EnforceHTTPSConfig = EnforceHTTPSConfig
-    { httpsIsSecure        :: HTTPSResolver
-    , httpsHostname        :: Maybe ByteString
-    , httpsPort            :: Int
-    , httpsIgnoreURL       :: Bool
-    , httpsTemporary       :: Bool
-    , httpsSkipDefaultPort :: Bool
-    , httpsRedirectMethods :: [ Method ]
-    , httpsDisallowStatus  :: Status
+    { httpsIsSecure        :: !HTTPSResolver
+    , httpsHostname        :: !(Maybe ByteString)
+    , httpsPort            :: !Int
+    , httpsIgnoreURL       :: !Bool
+    , httpsTemporary       :: !Bool
+    , httpsSkipDefaultPort :: !Bool
+    , httpsRedirectMethods :: ![Method]
+    , httpsDisallowStatus  :: !Status
     }
 
 
 -- | Default Configuration
--- Default resolver is proxy to @Network.Wai.isSecure@ function
+-- Default resolver is proxy to 'Network.Wai.isSecure' function
 --
 -- * uses request @Host@ header information to resolve hostname
 -- * standard HTTPS port @443@
@@ -92,6 +125,7 @@ defaultConfig = EnforceHTTPSConfig
   , httpsRedirectMethods = [ "GET", "HEAD" ]
   , httpsDisallowStatus  = HTTP.methodNotAllowed405
   }
+{-# INLINE defaultConfig #-}
 
 
 -- | Construct `Middleware` for specific `EnforceHTTPSConfig`
@@ -99,6 +133,7 @@ withConfig :: EnforceHTTPSConfig -> Middleware
 withConfig conf@EnforceHTTPSConfig { .. } app req
   | httpsIsSecure req = app req
   | otherwise = redirect conf req
+{-# INLINE withConfig #-}
 
 
 redirect :: EnforceHTTPSConfig -> Application
@@ -153,27 +188,27 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
 
 
 -- | `Middleware` with /default/ configuration.
--- See `defaultConfig` for more details.
+-- See 'defaultConfig' for more details.
 def :: Middleware
 def =
   withConfig defaultConfig
+{-# INLINE def #-}
 
 
 -- | Construct middleware with provided `Resolver`
--- See `Resolver` section for information.
+-- See `Provided Resolvers` section for more information.
 withResolver :: HTTPSResolver -> Middleware
 withResolver resolver =
   withConfig $ defaultConfig { httpsIsSecure = resolver }
+{-# INLINE withResolver #-}
 
 
--- | === RESOLVERS
---
--- Resolvers are function used for testing
+-- | Resolvers are function used for testing
 -- if Request is made over secure HTTPS protocol.
 --
--- if `True` is returned from `Resolver` function
--- request is considered as being secure.
--- For `False` values redirection logic is called.
+-- if `True` is returned from a `Resolver` function,
+-- request is considered to be secure.
+-- In case of `False` value, redirect logic is called.
 type HTTPSResolver =
   Request -> Bool
 
@@ -190,6 +225,7 @@ xForwardedProto req =
   where
     maybeHederVal =
       "x-forwarded-proto" `lookup` Wai.requestHeaders req
+{-# INLINE xForwardedProto #-}
 
 
 -- | Azure is proxying with additional
@@ -201,6 +237,7 @@ azure req =
   where
     maybeHeader =
       "x-arr-ssl" `lookup` Wai.requestHeaders req
+{-# INLINE azure #-}
 
 
 -- | Some reverse proxies (Kong) are using
@@ -216,6 +253,7 @@ customProtoHeader header req =
   where
     maybeHederVal =
       CaseInsensitive.mk header `lookup` Wai.requestHeaders req
+{-# INLINE customProtoHeader #-}
 
 
 -- | Forwarded HTTP header is relatively new standard
@@ -237,3 +275,4 @@ forwarded req =
 
     maybeHeader =
       "forwarded" `lookup` Wai.requestHeaders req
+{-# INLINE forwarded #-}
