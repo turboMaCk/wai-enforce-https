@@ -16,7 +16,12 @@ extra-source-files:  CHANGELOG.md
 cabal-version:       >=1.10
 homepage:            https://github.com/turboMaCk/wai-enforce-https
 
+Flag examples
+  Description:  Build example projects
+  Default:      False
+
 library
+  hs-source-dirs:      lib
   exposed-modules:     Network.Wai.Middleware.EnforceHTTPS
                      , Network.HTTP.Forwarded
   -- other-modules:
@@ -48,6 +53,10 @@ test-suite spec
     default-language:  Haskell2010
 
 executable example-tls
+    if flag(examples)
+        buildable: True
+    else
+        buildable: False
     hs-source-dirs:    examples
     main-is:           TLSApp.hs
     build-depends:     base
@@ -60,6 +69,12 @@ executable example-tls
     default-language:  Haskell2010
 
 executable example-proxy
+    if flag(examples)
+        buildable: True
+    else
+        buildable: False
+    data-files:        examples/cert.pem
+                     , examples/key.pem
     hs-source-dirs:    examples
     main-is:           Proxy.hs
     build-depends:     base

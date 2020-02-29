@@ -16,15 +16,19 @@
 -- > import qualified Network.Wai.Middleware.EnforceHTTPS as EnforceHTTPS
 
 module Network.Wai.Middleware.EnforceHTTPS
-  ( EnforceHTTPSConfig(..)
+  (
+ -- * Configuration and Initialization
+    EnforceHTTPSConfig(..)
+  , defaultConfig
+  , HTTPSResolver
   , def
   , withResolver
+  , withConfig
+ -- * Provided Resolvers
   , xForwardedProto
   , azure
   , forwarded
   , customProtoHeader
-  , defaultConfig
-  , withConfig
   ) where
 
 import           Data.ByteString        (ByteString)
@@ -60,14 +64,14 @@ import qualified Network.Wai            as Wai
 -- Configuration of `httpsIsSecure` can be set using `withResolver`
 -- function which is preferred way for overwriting default `Resolver` .
 data EnforceHTTPSConfig = EnforceHTTPSConfig
-    { httpsIsSecure        :: HTTPSResolver
-    , httpsHostname        :: Maybe ByteString
-    , httpsPort            :: Int
-    , httpsIgnoreURL       :: Bool
-    , httpsTemporary       :: Bool
-    , httpsSkipDefaultPort :: Bool
-    , httpsRedirectMethods :: [Method]
-    , httpsDisallowStatus  :: Status
+    { httpsIsSecure        :: !HTTPSResolver
+    , httpsHostname        :: !Maybe ByteString
+    , httpsPort            :: !Int
+    , httpsIgnoreURL       :: !Bool
+    , httpsTemporary       :: !Bool
+    , httpsSkipDefaultPort :: !Bool
+    , httpsRedirectMethods :: ![Method]
+    , httpsDisallowStatus  :: !Status
     }
 
 
@@ -92,6 +96,7 @@ defaultConfig = EnforceHTTPSConfig
   , httpsRedirectMethods = [ "GET", "HEAD" ]
   , httpsDisallowStatus  = HTTP.methodNotAllowed405
   }
+{-# INLINE defaultConfig #-}
 
 
 -- | Construct `Middleware` for specific `EnforceHTTPSConfig`
@@ -99,6 +104,7 @@ withConfig :: EnforceHTTPSConfig -> Middleware
 withConfig conf@EnforceHTTPSConfig { .. } app req
   | httpsIsSecure req = app req
   | otherwise = redirect conf req
+{-# INLINE withConfig #-}
 
 
 redirect :: EnforceHTTPSConfig -> Application
@@ -157,6 +163,7 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
 def :: Middleware
 def =
   withConfig defaultConfig
+{-# INLINE def #-}
 
 
 -- | Construct middleware with provided `Resolver`
@@ -164,6 +171,7 @@ def =
 withResolver :: HTTPSResolver -> Middleware
 withResolver resolver =
   withConfig $ defaultConfig { httpsIsSecure = resolver }
+{-# INLINE withResolver #-}
 
 
 -- | === RESOLVERS
@@ -190,6 +198,7 @@ xForwardedProto req =
   where
     maybeHederVal =
       "x-forwarded-proto" `lookup` Wai.requestHeaders req
+{-# INLINE xForwardedProto #-}
 
 
 -- | Azure is proxying with additional
@@ -201,6 +210,7 @@ azure req =
   where
     maybeHeader =
       "x-arr-ssl" `lookup` Wai.requestHeaders req
+{-# INLINE azure #-}
 
 
 -- | Some reverse proxies (Kong) are using
@@ -216,6 +226,7 @@ customProtoHeader header req =
   where
     maybeHederVal =
       CaseInsensitive.mk header `lookup` Wai.requestHeaders req
+{-# INLINE customProtoHeader #-}
 
 
 -- | Forwarded HTTP header is relatively new standard
@@ -237,3 +248,4 @@ forwarded req =
 
     maybeHeader =
       "forwarded" `lookup` Wai.requestHeaders req
+{-# INLINE forwarded #-}

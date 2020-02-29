@@ -109,3 +109,11 @@ app = EnforceHTTPS.withResolver EnforceHTTPS.xForwardedProto handler
 main :: IO ()
 main = runEnv 8080 app
 ```
+
+### Bulding Examples
+
+In order to run examples project must be build with `examples` flag:
+
+```
+$ cabal build -f examples
+```
