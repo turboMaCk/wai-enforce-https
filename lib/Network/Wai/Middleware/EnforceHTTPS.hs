@@ -14,17 +14,46 @@
 -- This module is intended to be imported @qualified@
 --
 -- > import qualified Network.Wai.Middleware.EnforceHTTPS as EnforceHTTPS
+--
+-- = Example Usage
+--
+-- Following is the most typical config.
+-- That is GCP, AWS and Heroku compatible setting
+-- using @x-forwarded-proto@ header check and default configuration.
+--
+-- > {-# LANGUAGE OverloadedStrings #-}
+-- >
+-- > module Main where
+-- >
+-- > import           Network.HTTP.Types                  (status200)
+-- > import           Network.Wai                         (Application, responseLBS)
+-- > import           Network.Wai.Handler.Warp            (runEnv)
+-- >
+-- > import qualified Network.Wai.Middleware.EnforceHTTPS as EnforceHTTPS
+-- >
+-- > handler :: Application
+-- > handler _ respond = respond $
+-- >     responseLBS status200 [] "Hello from behind proxy"
+-- >
+-- > app :: Application
+-- > app = EnforceHTTPS.withResolver EnforceHTTPS.xForwardedProto handler
+-- >
+-- > main :: IO ()
+-- > main = runEnv 8080 app
 
 module Network.Wai.Middleware.EnforceHTTPS
   (
  -- * Configuration and Initialization
     EnforceHTTPSConfig(..)
   , defaultConfig
-  , HTTPSResolver
   , def
   , withResolver
   , withConfig
  -- * Provided Resolvers
+ -- | This module provides most common implementation
+ -- of rrsolvers used by various cloud providers and
+ -- reverse proxy implemetations.
+  , HTTPSResolver
   , xForwardedProto
   , azure
   , forwarded
@@ -53,7 +82,7 @@ import qualified Network.Wai            as Wai
 -- | === Configuration
 --
 -- `EnforceHTTPSConfig` does export constructor
--- which should not collide with ny other functions
+-- which should not collide with any other functions
 -- and therefore can be exposed in import
 --
 -- > import Network.Wai.Middleware.EnforceHTTPS (EnforceHTTPSConfig(..))
@@ -62,7 +91,7 @@ import qualified Network.Wai            as Wai
 -- to override any default value if you need to.
 --
 -- Configuration of `httpsIsSecure` can be set using `withResolver`
--- function which is preferred way for overwriting default `Resolver` .
+-- function which is preferred way for overwriting default `Resolver`.
 data EnforceHTTPSConfig = EnforceHTTPSConfig
     { httpsIsSecure        :: !HTTPSResolver
     , httpsHostname        :: !(Maybe ByteString)
@@ -76,7 +105,7 @@ data EnforceHTTPSConfig = EnforceHTTPSConfig
 
 
 -- | Default Configuration
--- Default resolver is proxy to @Network.Wai.isSecure@ function
+-- Default resolver is proxy to 'Network.Wai.isSecure' function
 --
 -- * uses request @Host@ header information to resolve hostname
 -- * standard HTTPS port @443@
@@ -159,7 +188,7 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
 
 
 -- | `Middleware` with /default/ configuration.
--- See `defaultConfig` for more details.
+-- See 'defaultConfig' for more details.
 def :: Middleware
 def =
   withConfig defaultConfig
@@ -167,21 +196,19 @@ def =
 
 
 -- | Construct middleware with provided `Resolver`
--- See `Resolver` section for information.
+-- See `Provided Resolvers` section for more information.
 withResolver :: HTTPSResolver -> Middleware
 withResolver resolver =
   withConfig $ defaultConfig { httpsIsSecure = resolver }
 {-# INLINE withResolver #-}
 
 
--- | === RESOLVERS
---
--- Resolvers are function used for testing
+-- | Resolvers are function used for testing
 -- if Request is made over secure HTTPS protocol.
 --
--- if `True` is returned from `Resolver` function
--- request is considered as being secure.
--- For `False` values redirection logic is called.
+-- if `True` is returned from a `Resolver` function,
+-- request is considered to be secure.
+-- In case of `False` value, redirect logic is called.
 type HTTPSResolver =
   Request -> Bool
 

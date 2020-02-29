@@ -100,8 +100,8 @@ import           Network.Wai.Handler.Warp            (runEnv)
 import qualified Network.Wai.Middleware.EnforceHTTPS as EnforceHTTPS
 
 handler :: Application
-handler _ respond =
-   respond $ responseLBS status200 [] "Hello from behind proxy"
+handler _ respond = respond $
+  responseLBS status200 [] "Hello from behind proxy"
 
 app :: Application
 app = EnforceHTTPS.withResolver EnforceHTTPS.xForwardedProto handler
