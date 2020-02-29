@@ -65,7 +65,7 @@ import qualified Network.Wai            as Wai
 -- function which is preferred way for overwriting default `Resolver` .
 data EnforceHTTPSConfig = EnforceHTTPSConfig
     { httpsIsSecure        :: !HTTPSResolver
-    , httpsHostname        :: !Maybe ByteString
+    , httpsHostname        :: !(Maybe ByteString)
     , httpsPort            :: !Int
     , httpsIgnoreURL       :: !Bool
     , httpsTemporary       :: !Bool

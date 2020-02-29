@@ -36,10 +36,10 @@ import qualified Data.Char            as Char
 -- | Representation of Forwarded header data
 -- All field are optional
 data Forwarded = Forwarded
-  { forwardedBy    :: !Maybe ByteString
-  , forwardedFor   :: !Maybe ByteString
-  , forwardedHost  :: !Maybe ByteString
-  , forwardedProto :: !Maybe (CI ByteString)
+  { forwardedBy    :: !(Maybe ByteString)
+  , forwardedFor   :: !(Maybe ByteString)
+  , forwardedHost  :: !(Maybe ByteString)
+  , forwardedProto :: !(Maybe (CI ByteString))
   } deriving (Eq, Show)
 
 
