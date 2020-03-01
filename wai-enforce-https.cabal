@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                wai-enforce-https
-version:             0.0.1
+version:             0.0.2
 synopsis:            Enforce HTTPS in Wai server app safely.
 description:         Wai middleware enforcing HTTPS protocol on any incoming request. In case of non-encrypted HTTP, traffic is redirected using 301 Permanent Redirect or optionally 307 Temporary Redirect. Middleware has compatibility modes for various reverse proxies (load balancers) and therefore can be used with Heroku, Google Cloud (Ingress), Azure or any other type of PAS or Cloud provider.
 license:             BSD3
@@ -15,6 +15,11 @@ build-type:          Simple
 extra-source-files:  CHANGELOG.md
 cabal-version:       >=1.10
 homepage:            https://github.com/turboMaCk/wai-enforce-https
+tested-with:         GHC == 7.10.3
+                   , GHC == 7.8.4
+                   , GHC == 7.6.3
+                   , GHC == 8.4.4
+                   , GHC == 8.6.5
 
 Flag examples
   Description:  Build example projects
