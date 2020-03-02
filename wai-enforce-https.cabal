@@ -21,6 +21,9 @@ tested-with:         GHC == 7.10.3
                    , GHC == 8.4.4
                    , GHC == 8.6.5
 
+data-files:          examples/cert.pem
+                   , examples/key.pem
+
 Flag examples
   Description:  Build example projects
   Default:      False
@@ -78,8 +81,6 @@ executable example-proxy
         buildable: True
     else
         buildable: False
-    data-files:        examples/cert.pem
-                     , examples/key.pem
     hs-source-dirs:    examples
     main-is:           Proxy.hs
     build-depends:     base
