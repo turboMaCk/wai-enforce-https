@@ -1,5 +1,10 @@
 # Revision history for wai-enforce-https
 
+## 0.0.2.1 -- 2020-03-09
+
+* Include README as an extra source file (relesable to hackage)
+* Fix module meta comment in Forwarded module
+
 ## 0.0.2 -- 2020-03-01
 
 * Make Config record field strict
