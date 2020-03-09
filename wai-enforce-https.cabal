@@ -12,7 +12,8 @@ maintainer:          marek.faj@gmail.com
 -- copyright:
 category:            Web
 build-type:          Simple
-extra-source-files:  CHANGELOG.md
+extra-source-files:  README.md
+                   , CHANGELOG.md
 cabal-version:       >=1.10
 homepage:            https://github.com/turboMaCk/wai-enforce-https
 tested-with:         GHC == 7.10.3

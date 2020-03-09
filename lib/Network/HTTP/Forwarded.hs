@@ -3,7 +3,7 @@
 {-# LANGUAGE RecordWildCards   #-}
 
 -- |
--- Module      : Network.Wai.Middleware.EnforceHTTPS
+-- Module      : Network.HTTP.Forwarded
 -- Copyright   : (c) Marek Fajkus
 -- License     : BSD3
 --
