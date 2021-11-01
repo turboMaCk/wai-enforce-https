@@ -1,5 +1,9 @@
 # Revision history for wai-enforce-https
 
+## 1.0.0.0 -- 2021-11-01
+
+* Update api of host resolfing function (`httpsHostname` -> `httpsHostRewrite`)
+
 ## 0.0.2.1 -- 2020-03-09
 
 * Include README as an extra source file (relesable to hackage)
