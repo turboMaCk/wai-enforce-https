@@ -117,3 +117,9 @@ In order to run examples project must be build with `examples` flag:
 ```
 $ cabal build -f examples
 ```
+
+
+## Credits
+
+Design of this library is heavily based on my other project [koa-sslify](https://github.com/turboMaCk/koa-sslify)
+and is based on feedback and work of contributors of this library.

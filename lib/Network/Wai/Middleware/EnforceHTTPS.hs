@@ -93,14 +93,14 @@ import qualified Network.Wai            as Wai
 -- Configuration of `httpsIsSecure` can be set using `withResolver`
 -- function which is preferred way for overwriting default `Resolver`.
 data EnforceHTTPSConfig = EnforceHTTPSConfig
-    { httpsIsSecure        :: !HTTPSResolver
-    , httpsHostname        :: !(Maybe ByteString)
-    , httpsPort            :: !Int
-    , httpsIgnoreURL       :: !Bool
-    , httpsTemporary       :: !Bool
-    , httpsSkipDefaultPort :: !Bool
-    , httpsRedirectMethods :: ![Method]
-    , httpsDisallowStatus  :: !Status
+    { httpsIsSecure        :: !HTTPSResolver -- ^ Function to detect if reqest was done over secure protocol
+    , httpsHostRewrite     :: !(ByteString -> ByteString) -- ^ Rewrite rule for host (useful for redirecting between domains)
+    , httpsPort            :: !Int -- ^ Port of secure server
+    , httpsIgnoreURL       :: !Bool -- ^ Ignore url (path, query) - redirect to just host
+    , httpsTemporary       :: !Bool -- ^ Use termporary redirect
+    , httpsSkipDefaultPort :: !Bool -- ^ Avoid sending explicit port if default (443) is specified
+    , httpsRedirectMethods :: ![Method] -- ^ Whitelist for methods that should be redirected
+    , httpsDisallowStatus  :: !Status -- ^ Status to retuned for disallowed methods
     }
 
 
@@ -117,7 +117,7 @@ data EnforceHTTPSConfig = EnforceHTTPSConfig
 defaultConfig :: EnforceHTTPSConfig
 defaultConfig = EnforceHTTPSConfig
   { httpsIsSecure        = Wai.isSecure
-  , httpsHostname        = Nothing
+  , httpsHostRewrite     = id
   , httpsPort            = 443
   , httpsIgnoreURL       = False
   , httpsTemporary       = False
@@ -183,7 +183,7 @@ redirect EnforceHTTPSConfig { .. } req respond = respond $
     stripPort h =
       fst $ ByteString.break (== 58) h -- colon
 
-    fullHost h = fromMaybe h httpsHostname <> port
+    fullHost h = httpsHostRewrite h <> port
     reqMethod = Wai.requestMethod req
 
 

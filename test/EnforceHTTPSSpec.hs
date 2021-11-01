@@ -75,7 +75,7 @@ defaultSettingsSpec = do
 
 hostnameSpec :: Spec
 hostnameSpec = do
-  let withApp = run $ defaultConfig { httpsHostname = Just "foo.com" }
+  let withApp = run $ defaultConfig { httpsHostRewrite = const "foo.com" }
 
   it "redirects to specified hostname" $ withApp $ do
     res <- request baseReq
